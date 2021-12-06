@@ -3,11 +3,15 @@ import {ApiService} from "../../shared/api.service";
 import {HttpClient} from "@angular/common/http";
 
 @Component({
-  selector: 'app-demo',
-  templateUrl: './demo.component.html',
-  styleUrls: ['./demo.component.css']
+  selector: 'app-panel',
+  templateUrl: './panel.component.html',
+  styleUrls: ['./panel.component.css']
 })
-export class DemoComponent implements OnInit {
+export class PanelComponent implements OnInit {
+
+  // get client id from api
+  currentServerId: number = 1;
+  connectionStarted: boolean = false;
 
   constructor(public signalRService: ApiService, private http: HttpClient) { }
 
@@ -25,8 +29,15 @@ export class DemoComponent implements OnInit {
       })
   }
 
+  public addServer = () => {
+    this.http.get('https://localhost:5001/api/servs')
+      .subscribe(res => {
+        console.log(res);
+      })
+  }
+
   public buttonClicked = (event:any) => {
-    console.log(event);
     this.signalRService.broadcastChartData();
+    this.connectionStarted = true;
   }
 }

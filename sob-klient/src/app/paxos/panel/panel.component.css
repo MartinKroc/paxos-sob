@@ -1,0 +1,88 @@
+.main-container {
+  width: 75%;
+  margin: auto;
+}
+
+.flex {
+  display: flex;
+  gap: 1rem;
+}
+
+.rcv-start-container {
+  margin-top: 1rem;
+  border: 1px solid #0D4D4D;
+  border-radius: 10px;
+  width: 33%;
+  max-height: 20vh;
+  padding: 1rem;
+}
+
+.servers-list-container {
+  margin-top: 1rem;
+  border: 1px solid #0D4D4D;
+  border-radius: 10px;
+  width: 65%;
+  padding: 1rem;
+}
+
+.btn {
+  border: none;
+  border-radius: 5px;
+  padding: 1rem;
+  font-size: 1rem;
+}
+
+.btn:hover {
+  color: rgba(0,0,0,0.2);
+  cursor: pointer;
+}
+
+.btn-start-rcv {
+  background-color: #801515;
+  color: whitesmoke;
+}
+
+h4 {
+  font-size: 1.3em;
+}
+
+li {
+  background-color: #003333;
+  padding: 1rem;
+  color: whitesmoke;
+  margin-top: .5rem;
+  width: 50%;
+}
+
+hr {
+  margin-top: 2rem;
+  margin-bottom: 2rem;
+}
+
+.number {
+  color: #550000;
+  font-size: 1.6rem;
+}
+
+.paxos-title {
+  padding: 1rem;
+  background-color: #003333;
+  color: whitesmoke;
+}
+
+.proposals-list-container {
+  margin-top: 1rem;
+  border: 1px solid #0D4D4D;
+  border-radius: 10px;
+  width: 65%;
+  padding: 1rem;
+}
+
+.make-proposal-container {
+  margin-top: 1rem;
+  border: 1px solid #0D4D4D;
+  border-radius: 10px;
+  width: 33%;
+  max-height: 20vh;
+  padding: 1rem;
+}

@@ -1,3 +1,6 @@
+import {Server} from "./Server";
+
 export interface Demo {
-  servers: number[]
+  //servers: Server[];
+  servers: Array<Server>;
 }

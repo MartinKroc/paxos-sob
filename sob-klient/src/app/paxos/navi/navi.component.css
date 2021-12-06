@@ -1,0 +1,12 @@
+nav {
+  background-color: #003333;
+  width: 100%;
+  padding: .5rem;
+  color: whitesmoke;
+}
+
+h1 {
+  font-size: 2rem;
+  font-weight: lighter;
+  margin-left: 2rem;
+}

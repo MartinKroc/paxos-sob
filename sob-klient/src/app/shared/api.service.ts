@@ -7,8 +7,8 @@ import * as signalR from '@aspnet/signalr';
 })
 export class ApiService {
 
-  public data: Demo[];
-  public bradcastedData: Demo[];
+  public data: Demo;
+  public bradcastedData: Demo;
 
   private hubConnection: signalR.HubConnection
 
@@ -25,20 +25,20 @@ export class ApiService {
 
   public addTransferChartDataListener = () => {
     this.hubConnection.on('transferserversdata', (data) => {
-      //this.data = data;
+      this.data = data;
       console.log(data);
     });
   }
 
   public broadcastChartData = () => {
-    const data = this.data.map(m => {
-      const temp = {
-        servers: m.servers
-      }
-      return temp;
-    });
+    // const data = this.data.map(m => {
+    //   const temp = {
+    //     servers: m.servers
+    //   }
+    //   return temp;
+    // });
 
-    this.hubConnection.invoke('broadcastserversdata', data)
+    this.hubConnection.invoke('broadcastserversdata', this.data)
       .catch(err => console.error(err));
   }
 

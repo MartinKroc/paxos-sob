@@ -6,11 +6,15 @@ import { AppComponent } from './app.component';
 import { DemoComponent } from './paxos/demo/demo.component';
 import {HttpClientModule} from "@angular/common/http";
 import {FormsModule} from "@angular/forms";
+import { PanelComponent } from './paxos/panel/panel.component';
+import { NaviComponent } from './paxos/navi/navi.component';
 
 @NgModule({
   declarations: [
     AppComponent,
-    DemoComponent
+    DemoComponent,
+    PanelComponent,
+    NaviComponent
   ],
   imports: [
     BrowserModule,
