@@ -18,7 +18,8 @@ export class ApiService {
 
   // id które zwraca backend
   public currentClientId: number;
-  public currentClientRole: Role;
+  //public currentClientRole: Role = Role.Client;
+  public currentClientRole: number;
   public currentClientAccidentFlag: boolean = false;
 
   //analogicznie dla logów, albo doda się button aby odświeżyć

@@ -1,3 +1,3 @@
 export enum Role {
-  CLIENT = 'Klient', ACCEPTOR = 'Acceptor', PROPOSER = 'Proposer', LEARNER = 'Learner'
+  Leader = 'Leader', Client = 'Klient', Proposer = 'Proposer', Acceptor = 'Acceptor',  Learner = 'Learner'
 }

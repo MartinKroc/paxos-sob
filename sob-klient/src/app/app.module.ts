@@ -8,13 +8,15 @@ import {HttpClientModule} from "@angular/common/http";
 import {FormsModule} from "@angular/forms";
 import { PanelComponent } from './paxos/panel/panel.component';
 import { NaviComponent } from './paxos/navi/navi.component';
+import { TransformRolePipe } from './shared/transform-role.pipe';
 
 @NgModule({
   declarations: [
     AppComponent,
     DemoComponent,
     PanelComponent,
-    NaviComponent
+    NaviComponent,
+    TransformRolePipe
   ],
   imports: [
     BrowserModule,

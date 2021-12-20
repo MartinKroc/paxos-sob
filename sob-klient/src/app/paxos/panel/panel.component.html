@@ -6,16 +6,16 @@
       <h4><span class="number">1.</span> Inicjalizacja nowego serwera</h4>
       <button *ngIf="!connectionStarted" (click)="addServer()" class="btn btn-start-rcv">Dodaj serwer</button>
       <h4 *ngIf="connectionStarted && signalRService.currentClientId">Nadane ID - {{signalRService.currentClientId}}</h4>
-      <h4 *ngIf="connectionStarted && signalRService.currentClientId">Bieżąca rola - {{signalRService.currentClientRole}}</h4>
+      <h4 *ngIf="connectionStarted && signalRService.currentClientId">Bieżąca rola - {{signalRService.currentClientRole | transformRole}}</h4>
     </div>
     <div class="servers-list-container">
       <h4>Podłączone serwery</h4>
       <ul>
         <li *ngFor='let data of signalRService.data.servers'>
           <p><strong>ID Serwera: </strong> {{data.serverId}}</p>
-          <p><strong>Rola: </strong> Client / Acceptor / Proposer / Learner</p>
+          <p><strong>Rola: </strong> {{data.role | transformRole}}</p>
 <!--          <p><strong>Status: </strong> lider / nie lider </p>-->
-          <p><strong>Stan (awaria): </strong> działa / ma awarie </p>
+          <p><strong>Stan (awaria): </strong> Aktywny </p>
 <!--          <p><strong>Miara wydajności (prędkość działania): </strong> x </p>-->
         </li>
       </ul>
@@ -39,7 +39,8 @@
           <strong>Serwer ID: </strong> {{data.serverId}}
         </li>
       </ul>
-      <button *ngIf="hasRole(signalRService.currentClientRole)" (click)="acceptProposal()" class="btn btn-start-rcv" style="margin-top: 1rem">Akceptacja ( po najwyższej wartości )</button>
+<!--      <button *ngIf="hasRole(signalRService.currentClientRole)" (click)="acceptProposal()" class="btn btn-start-rcv" style="margin-top: 1rem">Akceptacja ( po najwyższej wartości )</button>-->
+      <button (click)="acceptProposal()" class="btn btn-start-rcv" style="margin-top: 1rem">Akceptacja ( po najwyższej wartości )</button>
     </div>
   </div>
   <h4>Symulacja awarii ( jeśli to lider )</h4>

@@ -36,19 +36,30 @@ export class PanelComponent implements OnInit {
   public addServer = () => {
     this.signalRService.broadcastChartData();
     this.connectionStarted = true;
-    this.http.get('https://localhost:5001/api/servs')
+    this.http.post('https://localhost:5001/api/servs/add', {})
       .subscribe(res => {
         console.log(res);
         // get id from api
-        this.signalRService.setClientId(69);
-        this.signalRService.currentClientRole = Role.CLIENT;
+        // @ts-ignore
+        this.signalRService.setClientId(res.serverId);
+        // @ts-ignore
+        this.signalRService.currentClientRole = res.role;
       })
   }
 
   addProposition() {
     // after response
-    this.signalRService.currentClientRole = Role.PROPOSER;
-    this.signalRService.proposals.proposes.push({serverId: 66}); //example
+    this.http.patch('https://localhost:5001/random-leader', {})
+      .subscribe(res => {
+        this.signalRService.proposals.proposes.push({serverId: 66}); //example
+        console.log(res);
+        // @ts-ignore
+        if(res !== 'Leader already exists!') {
+          this.signalRService.currentClientRole = 0;
+        }
+      })
+    //this.signalRService.currentClientRole = Role.Proposer;
+    //this.signalRService.proposals.proposes.push({serverId: 66}); //example
     // this.http.post('https://localhost:5001/api/servs', {serverId: this.signalRService.currentClientId})
     //   .subscribe(res => {
     //     console.log(res);
@@ -61,7 +72,7 @@ export class PanelComponent implements OnInit {
   }
 
   hasRole(role:Role) {
-    if(role === Role.PROPOSER) return false;
+    if(role === Role.Proposer) return false;
     else return true;
   }
 
