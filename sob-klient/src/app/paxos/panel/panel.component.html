@@ -4,9 +4,9 @@
   <div class="flex">
     <div class="rcv-start-container">
       <h4><span class="number">1.</span> Inicjalizacja nowego serwera</h4>
-      <button (click)="buttonClicked($event)" class="btn btn-start-rcv">Rozpocznij odbiór</button>
-      <button (click)="addServer()" class="btn btn-start-rcv">Dodaj serwer</button>
-      <h4 *ngIf="connectionStarted">Nadane ID - {{currentServerId}}</h4>
+      <button *ngIf="!connectionStarted" (click)="addServer()" class="btn btn-start-rcv">Dodaj serwer</button>
+      <h4 *ngIf="connectionStarted && signalRService.currentClientId">Nadane ID - {{signalRService.currentClientId}}</h4>
+      <h4 *ngIf="connectionStarted && signalRService.currentClientId">Bieżąca rola - {{signalRService.currentClientRole}}</h4>
     </div>
     <div class="servers-list-container">
       <h4>Podłączone serwery</h4>
@@ -14,9 +14,9 @@
         <li *ngFor='let data of signalRService.data.servers'>
           <p><strong>ID Serwera: </strong> {{data.serverId}}</p>
           <p><strong>Rola: </strong> Client / Acceptor / Proposer / Learner</p>
-          <p><strong>Status: </strong> lider / nie lider </p>
+<!--          <p><strong>Status: </strong> lider / nie lider </p>-->
           <p><strong>Stan (awaria): </strong> działa / ma awarie </p>
-          <p><strong>Miara wydajności (prędkość działania): </strong> x </p>
+<!--          <p><strong>Miara wydajności (prędkość działania): </strong> x </p>-->
         </li>
       </ul>
     </div>
@@ -26,30 +26,32 @@
   <h1 class="paxos-title">Algorytm Paxos</h1>
   <div class="flex">
     <div class="make-proposal-container">
-      <h4><span class="number">2.</span> Wyślij propozycję</h4>
-      <label>Propozycja: </label>
-      <input type="text"/>
-      <br/>
-      <button class="btn btn-start-rcv" style="margin-top: 1rem">Wyślij propozycje</button>
+      <h4><span class="number">2.</span> Wysyłanie propozycji</h4>
+<!--      <label>Propozycja: </label>-->
+<!--      <input type="text"/>-->
+<!--      <br/>-->
+      <button (click)="addProposition()" class="btn btn-start-rcv" style="margin-top: 1rem">Wyślij propozycje</button>
     </div>
     <div class="proposals-list-container">
       <h4>Otrzymane propozycje</h4>
       <ul>
-        <li *ngFor='let data of signalRService.data.servers'>
-          <strong>Serwer: </strong> {{data.serverId}}
-          <strong>Propozycja: </strong> x
+        <li *ngFor='let data of signalRService.proposals.proposes'>
+          <strong>Serwer ID: </strong> {{data.serverId}}
         </li>
       </ul>
-      <button class="btn btn-start-rcv" style="margin-top: 1rem">Akceptacja ( po najwyższej wartości )</button>
-      <button class="btn btn-start-rcv" style="margin-left: 1rem">Zapytaj o akceptacje</button>
+      <button *ngIf="hasRole(signalRService.currentClientRole)" (click)="acceptProposal()" class="btn btn-start-rcv" style="margin-top: 1rem">Akceptacja ( po najwyższej wartości )</button>
     </div>
   </div>
   <h4>Symulacja awarii ( jeśli to lider )</h4>
-  <button class="btn btn-start-rcv" style="margin-left: 1rem">Zmiana flagi u klienta</button>
-  <button class="btn btn-start-rcv" style="margin-left: 1rem">Zmiejszenie wydajności</button>
+  <button (click)="simulateAccident()" class="btn btn-start-rcv" style="margin-left: 1rem">Zmiana flagi u klienta</button>
+<!--  <button class="btn btn-start-rcv" style="margin-left: 1rem">Zmiejszenie wydajności</button>-->
   <hr>
   <h2>Logi zdarzeń</h2>
+  <button class="btn btn-start-rcv">Odśwież logi</button>
   <ul>
+    <li *ngFor="let log of logs">
+      <p>{{log.message}}</p>
+    </li>
     <li>
       <p>Nowa najlepsza propozycja: ...</p>
     </li>
