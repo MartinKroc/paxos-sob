@@ -12,10 +12,10 @@ namespace Paxos_Server.DataStorage
             return sm;
         }
 
-        public static ServerModel AddServer()
+        public static ServerModel AddServer(ServerRole role)
         {
             var r = new Random();
-            sm.Servers.Add(new Server(r.Next(1, 40)));
+            sm.Servers.Add(new Server(r.Next(1, 40), role));
             return sm;
         }
     }

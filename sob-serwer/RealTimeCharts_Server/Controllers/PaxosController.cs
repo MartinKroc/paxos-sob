@@ -15,9 +15,11 @@ namespace Paxos_Server.Controllers
     [ApiController]
     public class PaxosController : ControllerBase
     {
-        public IActionResult Get()
+        [HttpPost]
+        [Route("add")]
+        public IActionResult AddServerClient()
         {
-            DataManager.AddServer();
+            DataManager.AddServer(ServerRole.Client);
             
             return Ok(new { Message = "adding Completed" }); 
         }

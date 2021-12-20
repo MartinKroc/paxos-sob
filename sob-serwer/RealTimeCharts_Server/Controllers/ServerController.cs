@@ -24,9 +24,10 @@ namespace Paxos_Server.Controllers
 
         public IActionResult Get()
         { 
-            var timerManager = new TimerManager(() => _hub.Clients.All.SendAsync("transferserversdata", DataManager.GetData())); 
-            
-            return Ok(new { Message = "Request Completed" }); 
+            var timerManager = new TimerManager(() => 
+                _hub.Clients.All.SendAsync("transferserversdata", DataManager.GetData()));
+            var serversList = DataManager.GetData().Servers;
+            return Ok(serversList); 
         }
     }
 }
