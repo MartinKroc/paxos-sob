@@ -19,9 +19,7 @@ namespace Paxos_Server.Controllers
         [Route("add")]
         public IActionResult AddServerClient()
         {
-            DataManager.AddServer(ServerRole.Client);
-            
-            return Ok(new { Message = "adding Completed" }); 
+            return Ok(DataManager.AddServer(ServerRole.Client)); 
         }
     }
 }

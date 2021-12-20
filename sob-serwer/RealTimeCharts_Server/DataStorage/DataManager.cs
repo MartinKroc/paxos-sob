@@ -1,6 +1,7 @@
 ﻿using Paxos_Server.Models;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Paxos_Server.DataStorage
 {
@@ -12,11 +13,19 @@ namespace Paxos_Server.DataStorage
             return sm;
         }
 
-        public static ServerModel AddServer(ServerRole role)
+        public static Server AddServer(ServerRole role)
         {
             var r = new Random();
-            sm.Servers.Add(new Server(r.Next(1, 40), role));
-            return sm;
+            var newServer = new Server(r.Next(1, 40), role);
+            sm.Servers.Add(newServer);
+            return newServer;
+        }
+
+        public static bool LeaderExists()
+        {
+            var avaliableServers = GetData().Servers;
+            var leader = avaliableServers.FirstOrDefault(x => x.Role == ServerRole.Leader);
+            return leader != null;
         }
     }
 }
