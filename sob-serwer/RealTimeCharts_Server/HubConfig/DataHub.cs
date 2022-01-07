@@ -8,5 +8,11 @@ namespace Paxos_Server.HubConfig
     public class DataHub : Hub
     {
         public async Task BroadcastServersData(ServerModel data) => await Clients.All.SendAsync("broadcastserversdata", data);
+
+        [HubMethodName("SendNotificatnion")]
+        public void SendNotification()
+        {
+            //Clients.All.SendCoreAsync();
+        }
     }
 }
