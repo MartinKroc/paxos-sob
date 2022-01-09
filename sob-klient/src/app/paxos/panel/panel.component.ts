@@ -3,6 +3,7 @@ import {ApiService} from "../../shared/api.service";
 import {HttpClient} from "@angular/common/http";
 import {Role} from "../../models/role";
 import {ServerLog} from "../../models/ServerLog";
+import {Vote, VotesList} from "../../models/Votes";
 
 @Component({
   selector: 'app-panel',
@@ -15,15 +16,47 @@ export class PanelComponent implements OnInit {
 
   connectionStarted: boolean = false;
   logs: ServerLog[] = [];
+  votes: Vote[] = [];
+  votingResult: string;
+  voteToAdd: Vote = {
+    serverId: this.signalRService.currentClientId,
+    value: this.signalRService.getBestProposer()
+  };
 
   constructor(public signalRService: ApiService, private http: HttpClient) { }
 
   ngOnInit(): void {
     this.signalRService.startConnection();
     //this.getLogs();
+    this.getVotes();
+    this.getLeader();
     this.signalRService.addTransferChartDataListener();
     this.signalRService.addBroadcastChartDataListener();
     this.startHttpRequest();
+  }
+
+  getVotes() {
+    this.signalRService.getVotes().subscribe(res => {
+      // @ts-ignore
+      this.votes = res;
+      console.log(res);
+    });
+  }
+
+  getLeader() {
+    this.signalRService.getVotingResult().subscribe(res => {
+      this.votingResult = res;
+      this.logs.push({message: res});
+      console.log(res);
+    })
+  }
+
+  acceptProposal() {
+    let val = {serverId: this.signalRService.currentClientId, value: this.signalRService.getBestProposer()};
+    console.log(val);
+    this.signalRService.addVote(val).subscribe(res => {
+      console.log('ok')
+    });
   }
 
   private startHttpRequest = () => {
@@ -44,6 +77,8 @@ export class PanelComponent implements OnInit {
         this.signalRService.setClientId(res.serverId);
         // @ts-ignore
         this.signalRService.currentClientRole = res.role;
+        // @ts-ignore
+        localStorage.setItem('role', res.role);
       })
   }
 
@@ -56,8 +91,11 @@ export class PanelComponent implements OnInit {
         // @ts-ignore
         if(res !== 'Leader already exists!') {
           this.signalRService.currentClientRole = 0;
+          localStorage.setItem('role', '0');
         }
-      })
+      }, error => {
+        alert('Istnieje już inny lider!');
+      });
     //this.signalRService.currentClientRole = Role.Proposer;
     //this.signalRService.proposals.proposes.push({serverId: 66}); //example
     // this.http.post('https://localhost:5001/api/servs', {serverId: this.signalRService.currentClientId})
@@ -65,10 +103,6 @@ export class PanelComponent implements OnInit {
     //     console.log(res);
     //     // nothing special to get in response
     //   });
-  }
-
-  acceptProposal() {
-
   }
 
   hasRole(role:Role) {

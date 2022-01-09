@@ -3,11 +3,19 @@ import {Demo} from "../models/Demo";
 import * as signalR from '@aspnet/signalr';
 import {Role} from "../models/role";
 import {Propose, ProposeList} from "../models/Propose";
+import {Observable} from "rxjs";
+import {HttpClient} from "@angular/common/http";
+import {Vote, VotesList} from "../models/Votes";
 
 @Injectable({
   providedIn: 'root'
 })
 export class ApiService {
+
+  constructor(private http: HttpClient) {
+    this.currentClientRole = Number(localStorage.getItem('role'));
+    this.currentClientId = Number(localStorage.getItem('id'));
+  }
 
   public data: Demo = {servers: []};
   public bradcastedData: Demo = {servers: []};
@@ -89,5 +97,26 @@ export class ApiService {
 
   setClientId(id: number) {
     this.currentClientId = id;
+    localStorage.setItem('id', String(id));
+  }
+
+  addVote(vote: Vote) {
+    return this.http.post('https://localhost:5001/api/servs/vote', vote);
+  }
+
+  getVotes():Observable<VotesList> {
+    return this.http.get<VotesList>('https://localhost:5001/api/servs/votes');
+  }
+
+  getVotingResult():Observable<string> {
+    return this.http.get<string>('https://localhost:5001/api/servs/voting-result');
+  }
+
+  getBestProposer(): number {
+    let bestServer = -1;
+    this.data.servers.forEach(server => {
+      if(server.serverId > bestServer) bestServer = server.serverId;
+    });
+    return bestServer;
   }
 }

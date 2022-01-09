@@ -5,8 +5,8 @@
     <div class="rcv-start-container">
       <h4><span class="number">1.</span> Inicjalizacja nowego serwera</h4>
       <button *ngIf="!connectionStarted" (click)="addServer()" class="btn btn-start-rcv">Dodaj serwer</button>
-      <h4 *ngIf="connectionStarted && signalRService.currentClientId">Nadane ID - {{signalRService.currentClientId}}</h4>
-      <h4 *ngIf="connectionStarted && signalRService.currentClientId">Bieżąca rola - {{signalRService.currentClientRole | transformRole}}</h4>
+      <h4>Nadane ID - {{signalRService.currentClientId}}</h4>
+      <h4>Bieżąca rola - {{signalRService.currentClientRole | transformRole}}</h4>
     </div>
     <div class="servers-list-container">
       <h4>Podłączone serwery</h4>
@@ -33,14 +33,14 @@
       <button (click)="addProposition()" class="btn btn-start-rcv" style="margin-top: 1rem">Wyślij propozycje</button>
     </div>
     <div class="proposals-list-container">
-      <h4>Otrzymane propozycje</h4>
+      <h4>Otrzymane głosy</h4>
       <ul>
-        <li *ngFor='let data of signalRService.proposals.proposes'>
-          <strong>Serwer ID: </strong> {{data.serverId}}
+        <li *ngFor='let vote of votes'>
+          <span><strong>Serwer o ID: </strong> {{vote.serverId}} zagłosował: {{vote.value}}</span>
         </li>
       </ul>
 <!--      <button *ngIf="hasRole(signalRService.currentClientRole)" (click)="acceptProposal()" class="btn btn-start-rcv" style="margin-top: 1rem">Akceptacja ( po najwyższej wartości )</button>-->
-      <button (click)="acceptProposal()" class="btn btn-start-rcv" style="margin-top: 1rem">Akceptacja ( po najwyższej wartości )</button>
+      <button (click)="acceptProposal()" class="btn btn-start-rcv" style="margin-top: 1rem">Głosuj po najwyższej wartości ( {{signalRService.getBestProposer()}} )</button>
     </div>
   </div>
   <h4>Symulacja awarii ( jeśli to lider )</h4>

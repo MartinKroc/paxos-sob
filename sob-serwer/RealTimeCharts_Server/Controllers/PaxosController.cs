@@ -31,8 +31,8 @@ namespace Paxos_Server.Controllers
             var votingData = DataManager.GetVotingData();
             var serverVoting = votingData.Votes.FirstOrDefault(x => x.ServerId == vote.ServerId);
 
-            if (DataManager.GetData().Servers.Any(x => x.ServerId == vote.ServerId) 
-                && DataManager.GetData().Servers.Any(x => x.ServerId == vote.Value))
+            if (!DataManager.GetData().Servers.Any(x => x.ServerId == vote.ServerId) 
+                && !DataManager.GetData().Servers.Any(x => x.ServerId == vote.Value))
             {
                 return BadRequest($"No server registered with such id!");
             }
