@@ -9,10 +9,14 @@ namespace Paxos_Server.HubConfig
     {
         public async Task BroadcastServersData(ServerModel data) => await Clients.All.SendAsync("broadcastserversdata", data);
 
-        [HubMethodName("SendNotificatnion")]
-        public void SendNotification()
+        //public async Task BroadcastWinner(Server winner) => await Clients.All.SendAsync("broadcastwinner", winner);
+        
+        [HubMethodName("SendWinnerNotificatnion")]
+        public Task SendNotification(string message)
         {
-            //Clients.All.SendCoreAsync();
+            var that = this;
+            
+            return Clients.All.SendAsync("broadcastwinnermessage", message);
         }
     }
 }

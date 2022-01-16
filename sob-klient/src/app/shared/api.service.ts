@@ -84,6 +84,12 @@ export class ApiService {
     })
   }
 
+  public addWinnerMessageListener = () => {
+    this.hubConnection.on('broadcastwinnermessage', (data) => {
+      alert(data);
+    })
+  }
+
   // public broadcastProposalsData = () => {
   //   this.hubConnectionProposes.invoke('broadcastproposalsdata', this.data)
   //     .catch(err => console.error(err));

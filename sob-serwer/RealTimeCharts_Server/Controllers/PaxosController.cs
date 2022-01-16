@@ -17,36 +17,57 @@ namespace Paxos_Server.Controllers
     [ApiController]
     public class PaxosController : ControllerBase
     {
+        private readonly IHubContext<DataHub> _context;
+
+        public PaxosController(IHubContext<DataHub> context)
+        {
+            _context = context;
+        }
+
         [HttpPost]
         [Route("add")]
         public IActionResult AddServerClient()
         {
-            return Ok(DataManager.AddServer(ServerRole.Client)); 
+            return Ok(DataManager.AddServer(ServerRole.Client));
         }
 
         [HttpPost]
         [Route("vote")]
-        public IActionResult AddVote([FromBody] Vote vote)
+        public async Task<IActionResult> AddVote([FromBody] Vote vote)
         {
             var votingData = DataManager.GetVotingData();
             var serverVoting = votingData.Votes.FirstOrDefault(x => x.ServerId == vote.ServerId);
 
-            if (!DataManager.GetData().Servers.Any(x => x.ServerId == vote.ServerId) 
-                && !DataManager.GetData().Servers.Any(x => x.ServerId == vote.Value))
+            // jeśli któryś nie istnieje, głos nie może zostać oddany
+            if (DataManager.GetData().Servers.All(x => x.ServerId != vote.ServerId) 
+                || DataManager.GetData().Servers.All(x => x.ServerId != vote.Value))
             {
                 return BadRequest($"No server registered with such id!");
             }
-            if(serverVoting != null)
+            
+            if(!DataManager.GetData().Servers.First(x => x.ServerId == vote.Value).WannabeLeader)
+            {
+                return BadRequest($"Server with this id do not want to be a leader!");
+            }
+
+            if (serverVoting != null)
             {
                 return BadRequest("Server already gave its vote!");
             }
+
             DataManager.AddVote(vote);
 
-            if (DataManager.AreAllVoteCollected())
-            {
-                //broadcast voting results
-                //change winner to leader
-            }
+            if (!DataManager.AreAllVoteCollected()) return Ok("Vote saved!");
+
+            var (winnerId, count) = DataManager.VotingResult();
+
+            await _context.Clients.All.SendAsync("broadcastwinnermessage",
+                $"Wins server {winnerId} with {count} votes!");
+
+            var winner = DataManager.GetData().Servers.First(x => x.ServerId == winnerId);
+            winner.ChangeServerRole(ServerRole.Leader);
+
+            
             return Ok("Vote saved!");
         }
 

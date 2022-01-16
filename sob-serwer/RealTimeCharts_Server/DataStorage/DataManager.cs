@@ -22,7 +22,12 @@ namespace Paxos_Server.DataStorage
         public static Server AddServer(ServerRole role)
         {
             var r = new Random();
-            var newServer = new Server(r.Next(1, 40), role);
+            var id = r.Next(1, 40);
+            while (Sm.Servers.Any(x => x.ServerId == id))
+            {
+                id = r.Next(1, 40);
+            }
+            var newServer = new Server(id, role);
             Sm.Servers.Add(newServer);
             return newServer;
         }
@@ -67,6 +72,13 @@ namespace Paxos_Server.DataStorage
         private static void EraseVotes()
         {
             Vm.Votes.Clear();
+        }
+
+        public static Server GetCurrentLeader()
+        {
+            var availableServers = GetData().Servers;
+            var leader = availableServers.FirstOrDefault(x => x.Role == ServerRole.Leader);
+            return leader;
         }
     }
 }

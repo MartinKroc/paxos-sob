@@ -32,6 +32,7 @@ export class PanelComponent implements OnInit {
     this.getLeader();
     this.signalRService.addTransferChartDataListener();
     this.signalRService.addBroadcastChartDataListener();
+    this.signalRService.addWinnerMessageListener();
     this.startHttpRequest();
   }
 
