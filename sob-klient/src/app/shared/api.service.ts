@@ -6,15 +6,16 @@ import {Propose, ProposeList} from "../models/Propose";
 import {Observable} from "rxjs";
 import {HttpClient} from "@angular/common/http";
 import {Vote, VotesList} from "../models/Votes";
+import {LogsService} from "./logs.service";
 
 @Injectable({
   providedIn: 'root'
 })
 export class ApiService {
 
-  constructor(private http: HttpClient) {
-    this.currentClientRole = Number(localStorage.getItem('role'));
-    this.currentClientId = Number(localStorage.getItem('id'));
+  constructor(private http: HttpClient, private logsService: LogsService) {
+    if(sessionStorage.getItem('role')) this.currentClientRole = Number(sessionStorage.getItem('role'));
+    this.currentClientId = Number(sessionStorage.getItem('id'));
   }
 
   public data: Demo = {servers: []};
@@ -86,7 +87,13 @@ export class ApiService {
 
   public addWinnerMessageListener = () => {
     this.hubConnection.on('broadcastwinnermessage', (data) => {
-      alert(data);
+      alert(data + 'serverid ' + data.substr(12,2));
+      let winnerId = Number(data.substr(12,2));
+      this.logsService.addLog('Wybrano nowego lidera o id' + winnerId);
+      if(winnerId === this.currentClientId) {
+        this.currentClientRole = 0;
+        sessionStorage.setItem('role', '0');
+      }
     })
   }
 
@@ -103,7 +110,7 @@ export class ApiService {
 
   setClientId(id: number) {
     this.currentClientId = id;
-    localStorage.setItem('id', String(id));
+    sessionStorage.setItem('id', String(id));
   }
 
   addVote(vote: Vote) {
@@ -124,5 +131,12 @@ export class ApiService {
       if(server.serverId > bestServer) bestServer = server.serverId;
     });
     return bestServer;
+  }
+
+  addLeaderDestroyedListener() {
+    this.hubConnection.on('broadcastleaderdestroyedmessage', (data) => {
+      alert(data);
+      this.logsService.addLog('Bieżący lider usunięty!');
+    })
   }
 }

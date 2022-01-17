@@ -1,0 +1,24 @@
+.btn {
+  border: none;
+  border-radius: 5px;
+  padding: 1rem;
+  font-size: 1rem;
+}
+
+.btn:hover {
+  color: rgba(0,0,0,0.2);
+  cursor: pointer;
+}
+
+.btn-start-rcv {
+  background-color: #801515;
+  color: whitesmoke;
+}
+
+li {
+  background-color: #003333;
+  padding: 1rem;
+  color: whitesmoke;
+  margin-top: .5rem;
+  width: 50%;
+}

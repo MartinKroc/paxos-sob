@@ -9,6 +9,7 @@ import {FormsModule} from "@angular/forms";
 import { PanelComponent } from './paxos/panel/panel.component';
 import { NaviComponent } from './paxos/navi/navi.component';
 import { TransformRolePipe } from './shared/transform-role.pipe';
+import { InsideLogsComponent } from './paxos/inside-logs/inside-logs.component';
 
 @NgModule({
   declarations: [
@@ -16,7 +17,8 @@ import { TransformRolePipe } from './shared/transform-role.pipe';
     DemoComponent,
     PanelComponent,
     NaviComponent,
-    TransformRolePipe
+    TransformRolePipe,
+    InsideLogsComponent
   ],
   imports: [
     BrowserModule,

@@ -13,7 +13,7 @@
   border: 1px solid #0D4D4D;
   border-radius: 10px;
   width: 33%;
-  max-height: 20vh;
+  max-height: 30vh;
   padding: 1rem;
 }
 
@@ -44,6 +44,12 @@
 
 h4 {
   font-size: 1.3em;
+}
+
+input {
+  padding: 1em;
+  width: 40px;
+  margin-right: 1em;
 }
 
 li {

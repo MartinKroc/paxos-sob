@@ -1,9 +1,11 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, HostListener, OnDestroy, OnInit} from '@angular/core';
 import {ApiService} from "../../shared/api.service";
 import {HttpClient} from "@angular/common/http";
 import {Role} from "../../models/role";
 import {ServerLog} from "../../models/ServerLog";
 import {Vote, VotesList} from "../../models/Votes";
+import {LogsService} from "../../shared/logs.service";
+import {Server} from "../../models/Server";
 
 @Component({
   selector: 'app-panel',
@@ -12,27 +14,42 @@ import {Vote, VotesList} from "../../models/Votes";
 })
 export class PanelComponent implements OnInit {
 
-  // get client id from api
-
   connectionStarted: boolean = false;
   logs: ServerLog[] = [];
   votes: Vote[] = [];
+  votableServers: Server[] = [];
+  serverToVote: number = 0;
   votingResult: string;
   voteToAdd: Vote = {
     serverId: this.signalRService.currentClientId,
     value: this.signalRService.getBestProposer()
   };
 
-  constructor(public signalRService: ApiService, private http: HttpClient) { }
+  constructor(
+    public signalRService: ApiService,
+    public logsService: LogsService,
+    private http: HttpClient) { }
+
+
+  @HostListener('window:unload', [ '$event' ])
+  unloadHandler(event:any) {
+    this.http.post('https://localhost:5001/api/servers/destroy/' + this.signalRService.currentClientId, {})
+      .subscribe(res => {
+      }, error => {
+      });
+  }
 
   ngOnInit(): void {
     this.signalRService.startConnection();
-    //this.getLogs();
+    this.serverToVote = this.signalRService.getBestProposer();
     this.getVotes();
+    this.getVotableServers();
     this.getLeader();
+    this.checkIfConnectionStarted();
     this.signalRService.addTransferChartDataListener();
     this.signalRService.addBroadcastChartDataListener();
     this.signalRService.addWinnerMessageListener();
+    this.signalRService.addLeaderDestroyedListener();
     this.startHttpRequest();
   }
 
@@ -48,15 +65,20 @@ export class PanelComponent implements OnInit {
     this.signalRService.getVotingResult().subscribe(res => {
       this.votingResult = res;
       this.logs.push({message: res});
-      console.log(res);
-    })
+      this.logsService.addLog(res);
+    }, error => {
+      this.logsService.addLog('Voting is not finished yet!');
+    });
   }
 
   acceptProposal() {
-    let val = {serverId: this.signalRService.currentClientId, value: this.signalRService.getBestProposer()};
-    console.log(val);
+    let val = {serverId: this.signalRService.currentClientId, value: Number(this.serverToVote)};
     this.signalRService.addVote(val).subscribe(res => {
       console.log('ok')
+      this.logsService.addLog('Vote saved!');
+    }, error => {
+      alert(error.error);
+      this.logsService.addLog(error.error);
     });
   }
 
@@ -79,31 +101,23 @@ export class PanelComponent implements OnInit {
         // @ts-ignore
         this.signalRService.currentClientRole = res.role;
         // @ts-ignore
-        localStorage.setItem('role', res.role);
+        sessionStorage.setItem('role', res.role);
       })
   }
 
   addProposition() {
-    // after response
-    this.http.patch('https://localhost:5001/random-leader', {})
+    this.http.post('https://localhost:5001/api/role/leader-wannabe/' + this.signalRService.currentClientId, {})
       .subscribe(res => {
-        this.signalRService.proposals.proposes.push({serverId: 66}); //example
         console.log(res);
         // @ts-ignore
-        if(res !== 'Leader already exists!') {
-          this.signalRService.currentClientRole = 0;
-          localStorage.setItem('role', '0');
+        if(res !== 'No server with such id!') {
+          this.signalRService.currentClientRole = 2;
+          sessionStorage.setItem('role', '2');
         }
       }, error => {
-        alert('Istnieje już inny lider!');
+        alert('[add proposition] Nie istnieje w bazie klient o takim ID');
+        this.logsService.addLog('[add proposition] Nie istnieje w bazie klient o takim ID');
       });
-    //this.signalRService.currentClientRole = Role.Proposer;
-    //this.signalRService.proposals.proposes.push({serverId: 66}); //example
-    // this.http.post('https://localhost:5001/api/servs', {serverId: this.signalRService.currentClientId})
-    //   .subscribe(res => {
-    //     console.log(res);
-    //     // nothing special to get in response
-    //   });
   }
 
   hasRole(role:Role) {
@@ -125,4 +139,33 @@ export class PanelComponent implements OnInit {
   //       this.logs = res;
   //     })
   // }
+  private checkIfConnectionStarted() {
+    if(sessionStorage.getItem('id')) {
+      this.connectionStarted = true;
+    }
+  }
+
+  leaderRandom() {
+    this.http.post('https://localhost:5001/api/role/random-leader', {})
+      .subscribe(res => {
+        console.log(res);
+        // @ts-ignore
+        if(res !== 'Leader already exists!') {
+          // @ts-ignore
+          this.logsService.addLog('Wybrano losowego lidera o ID: ' + res.serverId);
+        }
+      }, error => {
+        alert('Lider już istnieje');
+        this.logsService.addLog('Leader already exists!');
+      });
+  }
+
+  private getVotableServers() {
+    this.http.get('https://localhost:5001/api/servers/leaders-to-be', {})
+      .subscribe(res => {
+        console.log(res);
+        // @ts-ignore
+        this.votableServers = res;
+      });
+  }
 }
