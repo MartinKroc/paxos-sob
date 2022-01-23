@@ -9,6 +9,7 @@ namespace Paxos_Server.DataStorage
     {
         private static readonly ServerModel Sm = new ServerModel();
         private static readonly VotingModel Vm = new VotingModel();
+        private static bool VotingActive { get; set; }
         public static ServerModel GetData()
         {
             return Sm;
@@ -21,6 +22,10 @@ namespace Paxos_Server.DataStorage
 
         public static Server AddServer(ServerRole role)
         {
+            if (!Sm.Servers.Any())
+            {
+                StartNewVoting();
+            }
             var r = new Random();
             var id = r.Next(1, 40);
             while (Sm.Servers.Any(x => x.ServerId == id))
@@ -42,13 +47,16 @@ namespace Paxos_Server.DataStorage
         public static void AddVote(Vote vote)
         {
             Vm.Votes.Add(vote);
+            var server = Sm.Servers.FirstOrDefault(x => x.ServerId == vote.ServerId);
+            server?.ChangeServerRole(ServerRole.Acceptor);
         }
 
         public static bool AreAllVoteCollected()
         {
-            var voteCount = Vm.Votes.Count();
+            //przy oddaniu głosu staje się akseptatorem
+            //koniec głosowania jak nie ma już klientów
             var serverClientCount = Sm.Servers.Count(x => x.Role == ServerRole.Client);
-            return voteCount == serverClientCount;
+            return serverClientCount == 0;
         }
 
         public static (int,int) VotingResult()
@@ -72,6 +80,11 @@ namespace Paxos_Server.DataStorage
         private static void EraseVotes()
         {
             Vm.Votes.Clear();
+            var toClients = Sm.Servers.Where(x => x.Role == ServerRole.Acceptor);
+            foreach (var server in toClients)
+            {
+                server.Role = ServerRole.Client;
+            }
         }
 
         public static Server GetCurrentLeader()
@@ -79,6 +92,20 @@ namespace Paxos_Server.DataStorage
             var availableServers = GetData().Servers;
             var leader = availableServers.FirstOrDefault(x => x.Role == ServerRole.Leader);
             return leader;
+        }
+
+        public static void StartNewVoting()
+        {
+            VotingActive = true;
+        }
+        public static void EndVoting()
+        {
+            VotingActive = false;
+        }
+
+        public static bool IsVotingActive()
+        {
+            return VotingActive;
         }
     }
 }

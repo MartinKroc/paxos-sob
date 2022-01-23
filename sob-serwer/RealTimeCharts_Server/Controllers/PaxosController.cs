@@ -35,9 +35,15 @@ namespace Paxos_Server.Controllers
         [Route("vote")]
         public async Task<IActionResult> AddVote([FromBody] Vote vote)
         {
+            if (!DataManager.IsVotingActive())
+            {
+                return BadRequest("Voting is not open!");
+            }
+            
             var votingData = DataManager.GetVotingData();
             var serverVoting = votingData.Votes.FirstOrDefault(x => x.ServerId == vote.ServerId);
 
+            
             // jeśli któryś nie istnieje, głos nie może zostać oddany
             if (DataManager.GetData().Servers.All(x => x.ServerId != vote.ServerId) 
                 || DataManager.GetData().Servers.All(x => x.ServerId != vote.Value))
@@ -45,7 +51,12 @@ namespace Paxos_Server.Controllers
                 return BadRequest($"No server registered with such id!");
             }
             
-            if(!DataManager.GetData().Servers.First(x => x.ServerId == vote.Value).WannabeLeader)
+            if(DataManager.GetData().Servers.First(x => x.ServerId == vote.ServerId).Role != ServerRole.Client)
+            {
+                return BadRequest($"You are not a client! Cannot vote!");
+            }
+            
+            if(!DataManager.GetData().Servers.First(x => x.ServerId == vote.Value).WantToBeLeader())
             {
                 return BadRequest($"Server with this id do not want to be a leader!");
             }
@@ -57,17 +68,21 @@ namespace Paxos_Server.Controllers
 
             DataManager.AddVote(vote);
 
+            await _context.Clients.All.SendAsync("broadcastnewvotemessage",
+                $"New vote!\nServer {vote.ServerId} votes for {vote.Value}");
+            
             if (!DataManager.AreAllVoteCollected()) return Ok("Vote saved!");
 
             var (winnerId, count) = DataManager.VotingResult();
 
             await _context.Clients.All.SendAsync("broadcastwinnermessage",
-                $"Wins server {winnerId} with {count} votes!");
+                $"Voting is over!\nWins server {winnerId} with {count} votes!");
 
+            DataManager.EndVoting();
+            
             var winner = DataManager.GetData().Servers.First(x => x.ServerId == winnerId);
             winner.ChangeServerRole(ServerRole.Leader);
 
-            
             return Ok("Vote saved!");
         }
 

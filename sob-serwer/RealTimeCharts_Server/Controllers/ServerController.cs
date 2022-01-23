@@ -32,24 +32,26 @@ namespace Paxos_Server.Controllers
         }
 
         [HttpPost]
-        [Route("destroy/{id}")]
-        public async Task<IActionResult> LeaderDegradation(int id)
+        [Route("destroy-current-leader")]
+        public async Task<IActionResult> LeaderDegradation()
         {
-            var servers = DataManager.GetData().Servers;
-            var toDestroy = servers.FirstOrDefault(x => x.ServerId == id);
-            if (toDestroy == null)
+            var leader = DataManager.GetCurrentLeader();
+            if (leader == null)
             {
                     return BadRequest("No server with this id found!");
             }
 
-            if (toDestroy.Role == ServerRole.Leader)
+            leader.IsWorking = false;
+            if (leader.Role == ServerRole.Leader)
             {
-                
-                await _hub.Clients.All.SendAsync("broadcastleaderdestroyedmessage",
-                    $"Leader destroyed!");
+                await _hub.Clients.All.SendAsync("broadcastleadernotworkingmessage",
+                    $"Leader is not working!");
             }
             
-            servers.Remove(toDestroy);
+            leader.Role = ServerRole.Breakdown;
+            DataManager.StartNewVoting();
+            await _hub.Clients.All.SendAsync("broadcastnewvotingmessage",
+                $"New voting begins!");
             return Ok();
         }
 
@@ -57,7 +59,7 @@ namespace Paxos_Server.Controllers
         [Route("leaders-to-be")]
         public IActionResult GetVotableServers()
         {
-            var servers = DataManager.GetData().Servers.Where(x => x.WannabeLeader == true);
+            var servers = DataManager.GetData().Servers.Where(x => x.WantToBeLeader());
             return Ok(servers);
         }
     }

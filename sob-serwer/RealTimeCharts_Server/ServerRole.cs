@@ -6,6 +6,7 @@
         Client,
         Proposer,
         Acceptor,
-        Learner
+        Learner,
+        Breakdown
     }
 }

@@ -6,13 +6,13 @@ namespace Paxos_Server.Models
     {
         public int ServerId { get; set; }
         public ServerRole Role { get; set; }
-        public bool WannabeLeader { get; set; }
+        public bool IsWorking { get; set; } 
 
         public Server(int id, ServerRole role)
         {
             ServerId = id;
             Role = role;
-            WannabeLeader = false;
+            IsWorking = true;
         }
 
         public void ChangeServerRole(ServerRole role)
@@ -22,7 +22,16 @@ namespace Paxos_Server.Models
 
         public bool WantToBeLeader()
         {
-            return WannabeLeader;
+            return Role == ServerRole.Proposer;
+        }
+        public bool DoNotWantToBeLeader()
+        {
+            return Role == ServerRole.Client;
+        }
+
+        public void StopWorking()
+        {
+            IsWorking = false;
         }
     }
 }
