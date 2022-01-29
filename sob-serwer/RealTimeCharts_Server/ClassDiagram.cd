@@ -1,0 +1,60 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="Paxos_Server.Controllers.PaxosController">
+    <Position X="5.25" Y="1" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>CAAAAAAAAAAAhAAAAAAAAAAAAAAAAAAAAAAAAAgAQAA=</HashCode>
+      <FileName>Controllers\PaxosController.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Paxos_Server.Controllers.RoleController">
+    <Position X="3" Y="1" Width="2" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAABAAAAAAAAAAAAAAAAABAAAwAAAAAAAA=</HashCode>
+      <FileName>Controllers\RoleController.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Paxos_Server.Controllers.ServerController">
+    <Position X="7" Y="1" Width="2" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAIAAABAEAAAAAAAAAAAAAAAAAIAAAAAAAA=</HashCode>
+      <FileName>Controllers\ServerController.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Paxos_Server.DataStorage.DataManager">
+    <Position X="10.25" Y="1" Width="2.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAASQBEEAAAAgEAAAAAAAAAAAAABABAAAAAAgAAAA=</HashCode>
+      <FileName>DataStorage\DataManager.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Paxos_Server.Models.Server">
+    <Position X="0.5" Y="3.75" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAEAAEQAAAAAAACAAAAAAAAAAACAA=</HashCode>
+      <FileName>Models\Server.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Paxos_Server.Models.ServerModel">
+    <Position X="4.25" Y="3.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAAAA=</HashCode>
+      <FileName>Models\ServerModel.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Paxos_Server.Models.Vote">
+    <Position X="2.5" Y="3.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAgAAAAAAA=</HashCode>
+      <FileName>Models\Vote.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Paxos_Server.Models.VotingModel">
+    <Position X="6" Y="3.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>ACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Models\VotingModel.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Font Name="Gegoe UI" Size="9" />
+</ClassDiagram>

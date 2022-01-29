@@ -20,6 +20,7 @@ export class PanelComponent implements OnInit {
   votableServers: Server[] = [];
   serverToVote: number = 0;
   votingResult: string;
+  serverAdded: boolean = false;
   voteToAdd: Vote = {
     serverId: this.signalRService.currentClientId,
     value: this.signalRService.getBestProposer()
@@ -31,12 +32,18 @@ export class PanelComponent implements OnInit {
     private http: HttpClient) { }
 
 
-  @HostListener('window:unload', [ '$event' ])
+  @HostListener('window:beforeunload', [ '$event' ])
   unloadHandler(event:any) {
-    this.http.post('https://localhost:5001/api/servers/destroy/' + this.signalRService.currentClientId, {})
-      .subscribe(res => {
-      }, error => {
-      });
+    if(this.signalRService.currentClientRole === 0) {
+      event.returnValue = `You have unsaved changes, leave anyway?`;
+      sessionStorage.removeItem('id')
+      sessionStorage.setItem('id', '1')
+      this.http.post('https://localhost:5001/api/servers/destroy-current-leader', {})
+        .subscribe(res => {
+
+        }, error => {
+        });
+    }
   }
 
   ngOnInit(): void {
@@ -49,6 +56,11 @@ export class PanelComponent implements OnInit {
     this.signalRService.addTransferChartDataListener();
     this.signalRService.addBroadcastChartDataListener();
     this.signalRService.addWinnerMessageListener();
+    this.signalRService.addVoteAddedListener();
+    this.signalRService.addNewProposeListener();
+    this.signalRService.addLeaderResigned();
+    this.signalRService.addNewVoting()
+    this.signalRService.newVotingListener();
     this.signalRService.addLeaderDestroyedListener();
     this.startHttpRequest();
   }
@@ -73,12 +85,18 @@ export class PanelComponent implements OnInit {
 
   acceptProposal() {
     let val = {serverId: this.signalRService.currentClientId, value: Number(this.serverToVote)};
+    this.signalRService.refreshRole();
     this.signalRService.addVote(val).subscribe(res => {
-      console.log('ok')
       this.logsService.addLog('Vote saved!');
     }, error => {
-      alert(error.error);
-      this.logsService.addLog(error.error);
+      if(error.error.text) {
+        console.log(error.error.text)
+        this.logsService.addLog(error.error.text);
+      }
+      else {
+        console.log(error.error)
+        this.logsService.addLog(error.error);
+      }
     });
   }
 
@@ -91,7 +109,8 @@ export class PanelComponent implements OnInit {
 
   public addServer = () => {
     this.signalRService.broadcastChartData();
-    this.connectionStarted = true;
+    this.serverAdded = true;
+    this.signalRService.refreshRole();
     this.http.post('https://localhost:5001/api/servs/add', {})
       .subscribe(res => {
         console.log(res);
@@ -106,6 +125,7 @@ export class PanelComponent implements OnInit {
   }
 
   addProposition() {
+    this.signalRService.refreshRole();
     this.http.post('https://localhost:5001/api/role/leader-wannabe/' + this.signalRService.currentClientId, {})
       .subscribe(res => {
         console.log(res);
@@ -125,20 +145,6 @@ export class PanelComponent implements OnInit {
     else return true;
   }
 
-  simulateAccident() {
-    // symuluje awarie
-    this.signalRService.currentClientAccidentFlag = true;
-    // żądanie na serwer aby zmienił lidera
-  }
-
-  // gdybyśmy zostali przy pobieraniu logów bez singnalR
-  // private getLogs() {
-  //   this.http.get('https://localhost:5001/api/logs')
-  //     .subscribe(res => {
-  //       console.log(res);
-  //       this.logs = res;
-  //     })
-  // }
   private checkIfConnectionStarted() {
     if(sessionStorage.getItem('id')) {
       this.connectionStarted = true;
@@ -164,6 +170,18 @@ export class PanelComponent implements OnInit {
     this.http.get('https://localhost:5001/api/servers/leaders-to-be', {})
       .subscribe(res => {
         console.log(res);
+        // @ts-ignore
+        this.votableServers = res;
+      });
+  }
+
+  dontWantToBeLeader() {
+    this.http.post('https://localhost:5001/api/role/dont-want-to-be-leader/' + this.signalRService.currentClientId, {})
+      .subscribe(res => {
+        console.log(res);
+        if(this.signalRService.currentClientRole === 0) {
+          this.signalRService.currentClientRole = 1;
+        }
         // @ts-ignore
         this.votableServers = res;
       });

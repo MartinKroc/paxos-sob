@@ -21,4 +21,10 @@ export class LogsService {
   getLogs(): Array<string> {
     return this.logs;
   }
+
+  removeLogs() {
+    this.logs = [];
+    sessionStorage.removeItem('logs');
+    sessionStorage.setItem('logs', JSON.stringify(this.logs));
+  }
 }

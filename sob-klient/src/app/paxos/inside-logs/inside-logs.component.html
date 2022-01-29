@@ -1,6 +1,7 @@
 <h2>Wiadomości zwrotne (logi)</h2>
+<button (click)="resetLogs()" class="btn btn-start-rcv" style="margin-left: 1rem">Resetuj logi</button>
 <ul>
-  <li *ngFor="let log of logs">
+  <li *ngFor="let log of logs.slice().reverse()">
     <p>{{log}}</p>
   </li>
 </ul>

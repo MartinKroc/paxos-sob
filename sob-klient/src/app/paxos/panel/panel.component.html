@@ -5,9 +5,9 @@
     <div class="rcv-start-container">
       <h4><span class="number">1.</span> Inicjalizacja nowego serwera</h4>
 <!--      <button *ngIf="!connectionStarted" (click)="addServer()" class="btn btn-start-rcv">Dodaj serwer</button>-->
-      <button (click)="addServer()" class="btn btn-start-rcv">Dodaj serwer</button>
-      <h4>Nadane ID - {{signalRService.currentClientId}}</h4>
-      <h4>Bieżąca rola - {{signalRService.currentClientRole | transformRole}}</h4>
+      <button *ngIf="!serverAdded" (click)="addServer()" class="btn btn-start-rcv">Dodaj serwer</button>
+      <h4 *ngIf="serverAdded">Nadane ID - {{signalRService.currentClientId}}</h4>
+      <h4 *ngIf="serverAdded">Bieżąca rola - {{signalRService.currentClientRole | transformRole}}</h4>
     </div>
     <div class="servers-list-container">
       <h4>Podłączone serwery</h4>
@@ -15,8 +15,7 @@
         <li *ngFor='let data of signalRService.data.servers'>
           <p><strong>ID Serwera: </strong> {{data.serverId}}</p>
           <p><strong>Rola: </strong> {{data.role | transformRole}}</p>
-          <p><strong>Czy chce być liderem?:  </strong> {{data.wannabeLeader?'Tak':'Nie'}} </p>
-          <p><strong>Stan (awaria): </strong> Aktywny </p>
+          <p><strong>Czy działa?:  </strong> {{data.isWorking?'Tak':'Nie'}} </p>
         </li>
       </ul>
     </div>
@@ -32,14 +31,14 @@
     <div class="proposals-list-container">
       <h4>Otrzymane głosy</h4>
       <ul>
-        <li *ngFor='let vote of votes'>
-          <span><strong>Serwer o ID: </strong> {{vote.serverId}} zagłosował na serwer o ID: {{vote.value}}</span>
+        <li *ngFor='let vote of this.signalRService.votes'>
+          <span>{{vote}}</span>
         </li>
       </ul>
       <h4>Serwery na które można głosować (proposerzy)</h4>
       <ul>
-        <li *ngFor='let server of votableServers'>
-          <span><strong>Serwer o ID: </strong> {{server.serverId}} </span>
+        <li *ngFor='let server of this.signalRService.proposes'>
+          <span>{{server}}</span>
         </li>
       </ul>
 <!--      <button *ngIf="hasRole(signalRService.currentClientRole)" (click)="acceptProposal()" class="btn btn-start-rcv" style="margin-top: 1rem">Akceptacja ( po najwyższej wartości )</button>-->
@@ -48,7 +47,7 @@
     </div>
   </div>
   <h4>Symulacja awarii ( jeśli to lider )</h4>
-  <button (click)="simulateAccident()" class="btn btn-start-rcv" style="margin-left: 1rem">Zmiana flagi u klienta</button>
+  <button (click)="dontWantToBeLeader()" class="btn btn-start-rcv" style="margin-left: 1rem">Awaria lidera</button>
   <button (click)="leaderRandom()" class="btn btn-start-rcv" style="margin-left: 1rem">Wybór losowego lidera</button>
   <hr>
   <app-inside-logs></app-inside-logs>

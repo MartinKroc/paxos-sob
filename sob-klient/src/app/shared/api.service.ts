@@ -36,6 +36,11 @@ export class ApiService {
   private hubConnection: signalR.HubConnection
   private hubConnectionProposes: signalR.HubConnection
 
+  // proposale z broadcasta
+  proposes: Array<string> = [];
+  // glosy z broadcasta
+  votes: Array<string> = [];
+
   public startConnection = () => {
     this.hubConnection = new signalR.HubConnectionBuilder()
       .withUrl('https://localhost:5001/servers')
@@ -47,32 +52,12 @@ export class ApiService {
       .catch(err => console.log('Error while starting connection: ' + err))
   }
 
-  // jak będą odbierane i wysyłane propozycje
-
-  // public startConnectionForProposes = () => {
-  //   this.hubConnectionProposes = new signalR.HubConnectionBuilder()
-  //     .withUrl('https://localhost:5001/proposes')
-  //     .build();
-  //
-  //   this.hubConnectionProposes
-  //     .start()
-  //     .then(() => console.log('Connection started for proposes'))
-  //     .catch(err => console.log('Error while starting connection: ' + err))
-  // }
-
   public addTransferChartDataListener = () => {
     this.hubConnection.on('transferserversdata', (data) => {
       this.data = data;
       console.log(data);
     });
   }
-
-  // public addTransferChartDataListenerProposals = () => {
-  //   this.hubConnectionProposes.on('transferproposalsdata', (data) => {
-  //     this.proposals = data;
-  //     console.log(data);
-  //   });
-  // }
 
   public broadcastChartData = () => {
     this.hubConnection.invoke('broadcastserversdata', this.data)
@@ -82,31 +67,26 @@ export class ApiService {
   public addBroadcastChartDataListener = () => {
     this.hubConnection.on('broadcastserversdata', (data) => {
       this.bradcastedData = data;
+      this.refreshRole();
+    })
+  }
+
+  public refreshRole() {
+    this.bradcastedData.servers.forEach(serv => {
+      if(serv.serverId === this.currentClientRole) this.currentClientRole = serv.role;
     })
   }
 
   public addWinnerMessageListener = () => {
     this.hubConnection.on('broadcastwinnermessage', (data) => {
-      alert(data + 'serverid ' + data.substr(12,2));
-      let winnerId = Number(data.substr(12,2));
-      this.logsService.addLog('Wybrano nowego lidera o id' + winnerId);
+      let winnerId = Number(data.match(/\d+/)[0]);
+      this.logsService.addLog(data);
+      console.log(winnerId)
       if(winnerId === this.currentClientId) {
         this.currentClientRole = 0;
-        sessionStorage.setItem('role', '0');
       }
-    })
+      })
   }
-
-  // public broadcastProposalsData = () => {
-  //   this.hubConnectionProposes.invoke('broadcastproposalsdata', this.data)
-  //     .catch(err => console.error(err));
-  // }
-
-  // public addBroadcastProposalDataListener = () => {
-  //   this.hubConnectionProposes.on('broadcastproposalsdata', (data) => {
-  //     this.bradcastedProposals = data;
-  //   })
-  // }
 
   setClientId(id: number) {
     this.currentClientId = id;
@@ -134,9 +114,47 @@ export class ApiService {
   }
 
   addLeaderDestroyedListener() {
-    this.hubConnection.on('broadcastleaderdestroyedmessage', (data) => {
+    this.hubConnection.on('broadcastleadernotworkingmessage', (data) => {
       alert(data);
       this.logsService.addLog('Bieżący lider usunięty!');
     })
+  }
+
+  addVoteAddedListener() {
+    this.hubConnection.on('broadcastnewvotemessage', (data) => {
+      console.log(data);
+      this.logsService.addLog(data);
+      this.votes.push(data);
+    })
+  }
+
+  addNewProposeListener() {
+    this.hubConnection.on('broadcastnewproposermessage', (data) => {
+      console.log(data);
+      this.proposes.push(data);
+      this.logsService.addLog(data);
+    })
+  }
+
+  addLeaderResigned() {
+    this.hubConnection.on('broadcastresignedleadermessage', (data) => {
+      console.log(data);
+      this.logsService.addLog(data);
+    })
+  }
+
+  addNewVoting() {
+      this.hubConnection.on('broadcastnewvotingmessage', (data) => {
+        console.log(data);
+      });
+  }
+
+  newVotingListener() {
+    this.hubConnection.on('broadcastnewvotingmessage', (data) => {
+      console.log(data);
+      this.logsService.addLog(data);
+      this.votes = []
+      this.proposes = []
+    });
   }
 }

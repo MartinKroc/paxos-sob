@@ -16,4 +16,8 @@ export class InsideLogsComponent implements OnInit {
     this.logs = this.logService.getLogs();
   }
 
+  resetLogs() {
+    this.logService.removeLogs();
+    this.logs = [];
+  }
 }
