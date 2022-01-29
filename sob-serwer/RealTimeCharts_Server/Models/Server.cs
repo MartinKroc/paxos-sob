@@ -24,6 +24,7 @@ namespace Paxos_Server.Models
         {
             return Role == ServerRole.Proposer;
         }
+        
         public bool DoNotWantToBeLeader()
         {
             return Role == ServerRole.Client;
