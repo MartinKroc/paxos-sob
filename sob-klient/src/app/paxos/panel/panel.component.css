@@ -92,3 +92,38 @@ hr {
   max-height: 20vh;
   padding: 1rem;
 }
+
+.container {
+  position: fixed;
+  bottom: 10px;
+  right: 10px;
+}
+
+.toast {
+  padding: 2rem;
+  background-color: purple;
+  color: whitesmoke;
+  border-radius: 5px;
+  margin: 1rem;
+}
+
+@media (max-width: 650px) {
+  .main-container {
+    width: 100%;
+  }
+  .servers-list-container {
+    margin-top: 1rem;
+    border: 1px solid #0D4D4D;
+    border-radius: 10px;
+    width: 85%;
+    padding: 0.5rem;
+  }
+  .make-proposal-container {
+    margin-top: 1rem;
+    border: 1px solid #0D4D4D;
+    border-radius: 10px;
+    width: 33%;
+    max-height: 30vh;
+    padding: 0.5rem;
+  }
+}

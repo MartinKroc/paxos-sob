@@ -1,4 +1,4 @@
-import {Component, HostListener, OnDestroy, OnInit} from '@angular/core';
+import {Component, ElementRef, HostListener, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {ApiService} from "../../shared/api.service";
 import {HttpClient} from "@angular/common/http";
 import {Role} from "../../models/role";
@@ -25,11 +25,17 @@ export class PanelComponent implements OnInit {
     serverId: this.signalRService.currentClientId,
     value: this.signalRService.getBestProposer()
   };
+  @ViewChild('cont') cont: ElementRef;
 
   constructor(
     public signalRService: ApiService,
     public logsService: LogsService,
-    private http: HttpClient) { }
+    private http: HttpClient) {
+    this.signalRService.invokeEvent.subscribe(value => this.popupComponent(value.some));
+    // setTimeout(()=>{
+    //   this.signalRService.callComponent(1);
+    // },1000);
+  }
 
 
   @HostListener('window:beforeunload', [ '$event' ])
@@ -44,6 +50,21 @@ export class PanelComponent implements OnInit {
         }, error => {
         });
     }
+  }
+
+  popupComponent(text: string) {
+    const notif = document.createElement('div');
+    notif.style.padding='2em';
+    notif.style.background='#801515';
+    notif.style.color='whitesmoke';
+    notif.style.borderRadius='5px';
+    notif.style.margin='1rem';
+    notif.style.fontSize='1.5rem'
+    this.cont.nativeElement.appendChild(notif)
+    notif.innerText = text;
+    setTimeout(()=> {
+      notif.remove();
+    }, 4000);
   }
 
   ngOnInit(): void {
@@ -80,6 +101,7 @@ export class PanelComponent implements OnInit {
       this.logsService.addLog(res);
     }, error => {
       this.logsService.addLog('Voting is not finished yet!');
+      this.popupComponent('Voting is not finished yet!');
     });
   }
 
@@ -92,10 +114,12 @@ export class PanelComponent implements OnInit {
       if(error.error.text) {
         console.log(error.error.text)
         this.logsService.addLog(error.error.text);
+        this.popupComponent(error.error.text);
       }
       else {
         console.log(error.error)
         this.logsService.addLog(error.error);
+        this.popupComponent(error.error);
       }
     });
   }
@@ -137,6 +161,7 @@ export class PanelComponent implements OnInit {
       }, error => {
         alert('[add proposition] Nie istnieje w bazie klient o takim ID');
         this.logsService.addLog('[add proposition] Nie istnieje w bazie klient o takim ID');
+        this.popupComponent('[add proposition] Nie istnieje w bazie klient o takim ID');
       });
   }
 
@@ -159,10 +184,13 @@ export class PanelComponent implements OnInit {
         if(res !== 'Leader already exists!') {
           // @ts-ignore
           this.logsService.addLog('Wybrano losowego lidera o ID: ' + res.serverId);
+          // @ts-ignore
+          this.popupComponent('Wybrano losowego lidera o ID: ' + res.serverId);
         }
       }, error => {
         alert('Lider już istnieje');
         this.logsService.addLog('Leader already exists!');
+        this.popupComponent('Leader already exists!');
       });
   }
 
@@ -184,6 +212,18 @@ export class PanelComponent implements OnInit {
         }
         // @ts-ignore
         this.votableServers = res;
+      });
+  }
+
+  leaderError() {
+    this.http.post('https://localhost:5001/api/servers/destroy-current-leader', {})
+      .subscribe(res => {
+        console.log(res);
+        if(this.signalRService.currentClientRole === 0) {
+          this.signalRService.currentClientRole = 1;
+        }
+        // // @ts-ignore
+        // this.votableServers = res;
       });
   }
 }

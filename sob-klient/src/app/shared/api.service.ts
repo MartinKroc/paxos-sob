@@ -3,7 +3,7 @@ import {Demo} from "../models/Demo";
 import * as signalR from '@aspnet/signalr';
 import {Role} from "../models/role";
 import {Propose, ProposeList} from "../models/Propose";
-import {Observable} from "rxjs";
+import {Observable, Subject} from "rxjs";
 import {HttpClient} from "@angular/common/http";
 import {Vote, VotesList} from "../models/Votes";
 import {LogsService} from "./logs.service";
@@ -41,6 +41,12 @@ export class ApiService {
   // glosy z broadcasta
   votes: Array<string> = [];
 
+  invokeEvent:Subject<any> = new Subject();
+
+  callComponent(value: any) {
+    this.invokeEvent.next({some:value})
+  }
+
   public startConnection = () => {
     this.hubConnection = new signalR.HubConnectionBuilder()
       .withUrl('https://localhost:5001/servers')
@@ -64,6 +70,12 @@ export class ApiService {
       .catch(err => console.error(err));
   }
 
+  public refreshRole() {
+    this.bradcastedData.servers.forEach(serv => {
+      if(serv.serverId === this.currentClientRole) this.currentClientRole = serv.role;
+    })
+  }
+
   public addBroadcastChartDataListener = () => {
     this.hubConnection.on('broadcastserversdata', (data) => {
       this.bradcastedData = data;
@@ -71,16 +83,11 @@ export class ApiService {
     })
   }
 
-  public refreshRole() {
-    this.bradcastedData.servers.forEach(serv => {
-      if(serv.serverId === this.currentClientRole) this.currentClientRole = serv.role;
-    })
-  }
-
   public addWinnerMessageListener = () => {
     this.hubConnection.on('broadcastwinnermessage', (data) => {
       let winnerId = Number(data.match(/\d+/)[0]);
       this.logsService.addLog(data);
+      this.callComponent(data);
       console.log(winnerId)
       if(winnerId === this.currentClientId) {
         this.currentClientRole = 0;
@@ -115,8 +122,8 @@ export class ApiService {
 
   addLeaderDestroyedListener() {
     this.hubConnection.on('broadcastleadernotworkingmessage', (data) => {
-      alert(data);
       this.logsService.addLog('Bieżący lider usunięty!');
+      this.callComponent('Bieżący lider usunięty!');
     })
   }
 
@@ -124,6 +131,7 @@ export class ApiService {
     this.hubConnection.on('broadcastnewvotemessage', (data) => {
       console.log(data);
       this.logsService.addLog(data);
+      this.callComponent(data);
       this.votes.push(data);
     })
   }
@@ -133,6 +141,7 @@ export class ApiService {
       console.log(data);
       this.proposes.push(data);
       this.logsService.addLog(data);
+      this.callComponent(data);
     })
   }
 
@@ -140,6 +149,7 @@ export class ApiService {
     this.hubConnection.on('broadcastresignedleadermessage', (data) => {
       console.log(data);
       this.logsService.addLog(data);
+      this.callComponent(data);
     })
   }
 
@@ -153,6 +163,7 @@ export class ApiService {
     this.hubConnection.on('broadcastnewvotingmessage', (data) => {
       console.log(data);
       this.logsService.addLog(data);
+      this.callComponent(data);
       this.votes = []
       this.proposes = []
     });
